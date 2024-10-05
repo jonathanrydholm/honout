@@ -5,7 +5,12 @@
         "packages/**/*"
     ],
     "scripts": {
-        "injection": "node publish.js injection core"
+        "injection": "node publish.js injection core/injection",
+        "functionality": "node publish.js functionality core/injection",
+        "system": "node publish.js system core/system",
+        "logger": "node publish.js logger logger/base",
+        "logger-pino": "node publish.js logger-pino logger/pino",
+        "metrics": "node publish.js metrics"
     },
     "devDependencies": {
         "@types/node": "22.6.0",

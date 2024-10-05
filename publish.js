@@ -3,7 +3,7 @@ const { readFileSync, writeFileSync, rmdir, rm } = require('fs');
 const { join } = require('path');
 
 const package = process.argv[2];
-const subfolder = process.argv[3];
+const packagePath = process.argv[3];
 
 if (!package) {
     throw new Error('Cannot publish undefined package');
@@ -12,7 +12,7 @@ if (!package) {
 const packageLocation = join(
     __dirname,
     'packages',
-    ...(subfolder ? [subfolder, package] : [package])
+    ...(packagePath ? [packagePath] : [package])
 );
 
 const packageJsonPath = join(packageLocation, 'package.json');
@@ -25,14 +25,19 @@ packageJson.publishConfig = {
     access: 'public',
 };
 packageJson.author = 'Jonathan Rydholm';
+packageJson.repository = {
+    type: 'git',
+    url: 'git+https://github.com/jonathanrydholm/honout.git',
+    directory: `packages${packagePath || package}`,
+};
 
 try {
     console.log('BUILDING');
-    execSync(`yarn workspace @granular/${package} build`);
+    execSync(`yarn workspace @honout/${package} build`);
     console.log('WRITING PACKAGE_JSON');
     writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 4) + '\n');
     console.log('PUBLISHING');
-    execSync(`yarn workspace @granular/${package} publish --access public`);
+    execSync(`yarn workspace @honout/${package} publish --access public`);
 } catch (e) {
     console.log('ERROR', e);
 } finally {

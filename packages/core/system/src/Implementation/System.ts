@@ -1,11 +1,10 @@
 import { Container } from '@honout/injection';
 import { v4 as uuidv4 } from 'uuid';
-import { GranularLogger, ILogger, ILoggerFactory } from '@honout/logger';
+import { GranularLogger, ILoggerFactory } from '@honout/logger';
 import {
     IClassDefinition,
     IUnknownFunctionality,
     IUnknownLogicExtension,
-    UnknownClassDefinition,
 } from '@honout/functionality';
 import { IApplication } from '../Types';
 import { IInternalApplication } from '../Types/IInternalApplication';
