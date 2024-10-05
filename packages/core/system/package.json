@@ -1,0 +1,18 @@
+{
+    "name": "@honout/system",
+    "version": "0.0.1",
+    "description": "",
+    "main": "./src/index.ts",
+    "author": "",
+    "license": "ISC",
+    "scripts": {
+        "build": "tsc -b"
+    },
+    "dependencies": {
+        "uuid": "10.0.0",
+        "@honout/functionality": "^0.0.1",
+        "@honout/injection": "^0.0.1",
+        "@honout/logger": "^0.0.1",
+        "reflect-metadata": "0.2.2"
+    }
+}

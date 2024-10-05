@@ -1,0 +1,13 @@
+{
+    "name": "@honout/injection",
+    "version": "0.0.1",
+    "author": "Jonathan Rydholm",
+    "license": "MIT",
+    "main": "./src/index.ts",
+    "scripts": {
+        "build": "tsc -b"
+    },
+    "dependencies": {
+        "inversify": "^6.0.0"
+    }
+}
