@@ -30,6 +30,7 @@ packageJson.repository = {
     url: 'git+https://github.com/jonathanrydholm/honout.git',
     directory: `packages/${packagePath || package}`,
 };
+packageJson.files = ['dist'];
 
 packageJson.dependencies = Object.entries(packageJson.dependencies).reduce(
     (acc, [packageName, version]) => {

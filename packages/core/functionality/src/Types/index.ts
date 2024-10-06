@@ -5,4 +5,4 @@ export type * from './IUnknownClassDefinition';
 export type * from './IUnknownFunctionality';
 export type * from './IUnknownLogicExtension';
 export type * from './IWithFunctionalityOptions';
-export type * from './IGranularFunctionality';
+export type * from './IHonoutFunctionality';
