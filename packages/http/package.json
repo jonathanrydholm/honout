@@ -10,9 +10,9 @@
     },
     "dependencies": {
         "fastify": "5.0.0",
-        "@honout/logger": "^0.0.1",
-        "@honout/system": "^0.0.1",
-        "@honout/functionality": "^0.0.1",
+        "@honout/logger": "*",
+        "@honout/system": "*",
+        "@honout/functionality": "*",
         "reflect-metadata": "0.2.2"
     }
 }

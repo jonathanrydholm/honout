@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-const { readFileSync, writeFileSync, rmdir, rm } = require('fs');
+const { readFileSync, writeFileSync, rm } = require('fs');
 const { join } = require('path');
 
 const package = process.argv[2];
@@ -28,8 +28,27 @@ packageJson.author = 'Jonathan Rydholm';
 packageJson.repository = {
     type: 'git',
     url: 'git+https://github.com/jonathanrydholm/honout.git',
-    directory: `packages${packagePath || package}`,
+    directory: `packages/${packagePath || package}`,
 };
+
+packageJson.dependencies = Object.entries(packageJson.dependencies).reduce(
+    (acc, [packageName, version]) => {
+        if (packageName.startsWith('@honout')) {
+            const description = require(join(packageName, 'package.json'));
+            return {
+                ...acc,
+                [packageName]: description.version,
+            };
+        }
+        return {
+            ...acc,
+            [packageName]: version,
+        };
+    },
+    {}
+);
+
+console.log(packageJson.dependencies);
 
 try {
     console.log('BUILDING');
@@ -38,6 +57,7 @@ try {
     writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 4) + '\n');
     console.log('PUBLISHING');
     execSync(`yarn workspace @honout/${package} publish --access public`);
+    console.log('DONE');
 } catch (e) {
     console.log('ERROR', e);
 } finally {

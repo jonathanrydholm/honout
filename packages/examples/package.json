@@ -14,12 +14,12 @@
         "graphql-example": "EXAMPLE=graphql node ./scripts/dev.js"
     },
     "dependencies": {
-        "@honout/watcher": "^0.0.1",
-        "@honout/system": "^0.0.1",
-        "@honout/logger": "^0.0.1",
-        "@honout/logger-pino": "^0.0.1",
-        "@honout/http": "^0.0.1",
-        "@honout/graphql": "^0.0.1"
+        "@honout/watcher": "*",
+        "@honout/system": "*",
+        "@honout/logger": "*",
+        "@honout/logger-pino": "*",
+        "@honout/http": "*",
+        "@honout/graphql": "*"
     },
     "devDependencies": {
         "nodemon-webpack-plugin": "4.8.2",

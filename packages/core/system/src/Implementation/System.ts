@@ -11,6 +11,11 @@ import { IInternalApplication } from '../Types/IInternalApplication';
 
 export class System {
     private container: Container;
+    private externalBindings?: (container: Container) => void | Promise<void>;
+    private externalConfigurations?: (
+        container: Container
+    ) => void | Promise<void>;
+    private externalStarts?: (container: Container) => void | Promise<void>;
 
     constructor() {
         this.container = new Container();
@@ -32,6 +37,20 @@ export class System {
         return this;
     }
 
+    onConfigureExternals(
+        callback: (container: Container) => void | Promise<void>
+    ): void {
+        this.externalConfigurations = callback;
+    }
+
+    onBindExternals(callback: (container: Container) => void | Promise<void>) {
+        this.externalBindings = callback;
+    }
+
+    onStartExternals(callback: (container: Container) => void | Promise<void>) {
+        this.externalStarts = callback;
+    }
+
     /** Starts the system */
     async start() {
         const logger = new GranularLogger();
@@ -40,6 +59,7 @@ export class System {
             'ILoggerFactory'
         )({ name: 'System' });
         const applications = this.getPrioritizedApplications();
+        const startableInstances: (() => Promise<void>)[] = [];
         for (const application of applications) {
             systemLogger.info(
                 `Starting application ${application._granular_application_identifier}`
@@ -50,7 +70,6 @@ export class System {
                 May be undefined in case of no functionality decorators
             */
             if (application._granular_functionalities) {
-                const instances: IUnknownFunctionality[] = [];
                 for (const granularFunctionality of application._granular_functionalities) {
                     const { functionality, configure, extend } =
                         granularFunctionality;
@@ -72,12 +91,22 @@ export class System {
                         configure
                     );
 
-                    instances.push(instance);
+                    startableInstances.push(() => instance.start(container));
                 }
+            }
 
-                for (const instance of instances) {
-                    await instance.start(container);
-                }
+            if (this.externalBindings) {
+                await this.externalBindings(this.container);
+            }
+            if (this.externalConfigurations) {
+                await this.externalConfigurations(this.container);
+            }
+
+            for (const instance of startableInstances) {
+                await instance();
+            }
+            if (this.externalStarts) {
+                await this.externalStarts(this.container);
             }
         }
     }

@@ -1,6 +1,6 @@
 {
     "name": "@honout/logger-pino",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "",
     "main": "./src/index.ts",
     "author": "",
@@ -9,9 +9,9 @@
         "build": "tsc -b"
     },
     "dependencies": {
-        "@honout/logger": "^0.0.1",
-        "@honout/injection": "^0.0.1",
-        "@honout/functionality": "^0.0.1",
+        "@honout/logger": "*",
+        "@honout/injection": "*",
+        "@honout/functionality": "*",
         "reflect-metadata": "0.2.2",
         "pino": "9.4.0"
     }
