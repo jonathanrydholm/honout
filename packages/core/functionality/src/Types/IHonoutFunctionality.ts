@@ -1,6 +1,6 @@
 import { IWithFunctionalityOptions } from './IWithFunctionalityOptions';
 
-export type IGranularFunctionality = IWithFunctionalityOptions<
+export type IHonoutFunctionality = IWithFunctionalityOptions<
     unknown,
     unknown,
     unknown

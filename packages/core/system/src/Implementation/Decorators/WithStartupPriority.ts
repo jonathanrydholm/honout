@@ -6,6 +6,6 @@ import { IApplication } from '../../Types';
  */
 export function WithStartupPriority(priority: number) {
     return function (target: IClassDefinition<IApplication>) {
-        target.prototype._granular_application_priority = priority;
+        target.prototype._honout_application_priority = priority;
     };
 }

@@ -4,8 +4,8 @@ import {
     injectable,
     WithFunctionality,
 } from '@honout/system';
-import { GranularHttpServer } from '@honout/http';
-import { GranularGraphql, IGraphQLIdentifiers } from '@honout/graphql';
+import { HonoutHttpServer } from '@honout/http';
+import { HonoutGraphql, IGraphQLIdentifiers } from '@honout/graphql';
 import { AddressType, UserType } from './UserType';
 import { User } from './UserResolver';
 import { UserQueryInput } from './UserQueryInput';
@@ -13,11 +13,11 @@ import { GraphQLContext } from './Context';
 
 @injectable()
 @WithFunctionality({
-    functionality: GranularHttpServer,
+    functionality: HonoutHttpServer,
     configure: { port: 3000 },
 })
 @WithFunctionality({
-    functionality: GranularGraphql,
+    functionality: HonoutGraphql,
 
     extend: [
         {

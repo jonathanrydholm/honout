@@ -10,7 +10,7 @@ import { WatchManager } from './Implementation';
 import { injectable } from 'inversify';
 
 @injectable()
-export class GranularWatcher
+export class HonoutWatcher
     implements IFunctionality<Overridables, WatcherIdentifiers>
 {
     onLogicExtensions(

@@ -1,6 +1,6 @@
 import { Container } from '@honout/injection';
 import { v4 as uuidv4 } from 'uuid';
-import { GranularLogger, ILoggerFactory } from '@honout/logger';
+import { HonoutLogger, ILoggerFactory } from '@honout/logger';
 import {
     IClassDefinition,
     IUnknownFunctionality,
@@ -53,7 +53,7 @@ export class System {
 
     /** Starts the system */
     async start() {
-        const logger = new GranularLogger();
+        const logger = new HonoutLogger();
         logger.bindInternals(this.container);
         const systemLogger = this.container.get<ILoggerFactory>(
             'ILoggerFactory'
@@ -62,17 +62,17 @@ export class System {
         const startableInstances: (() => Promise<void>)[] = [];
         for (const application of applications) {
             systemLogger.info(
-                `Starting application ${application._granular_application_identifier}`
+                `Starting application ${application._honout_application_identifier}`
             );
             const container = new Container();
             container.parent = this.container;
             /*
                 May be undefined in case of no functionality decorators
             */
-            if (application._granular_functionalities) {
-                for (const granularFunctionality of application._granular_functionalities) {
+            if (application._honout_functionalities) {
+                for (const honoutFunctionality of application._honout_functionalities) {
                     const { functionality, configure, extend } =
-                        granularFunctionality;
+                        honoutFunctionality;
 
                     const { instance, identifier } =
                         this.bindAndReturnFunctionality(
@@ -81,7 +81,7 @@ export class System {
                         );
 
                     systemLogger.trace(
-                        `Bound functionality ${identifier} to ${application._granular_application_identifier || 'Unknown application'}`
+                        `Bound functionality ${identifier} to ${application._honout_application_identifier || 'Unknown application'}`
                     );
 
                     await this.handleFunctionalityLifecycle(
@@ -116,8 +116,8 @@ export class System {
             .getAll<IInternalApplication>('IApplication')
             .sort(
                 (a, b) =>
-                    (b._granular_application_priority || 0) -
-                    (a._granular_application_priority || 0)
+                    (b._honout_application_priority || 0) -
+                    (a._honout_application_priority || 0)
             );
     }
 

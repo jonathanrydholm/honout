@@ -4,7 +4,7 @@ import { ILogger, ILoggerConfiguration } from './Types';
 import { Logger } from './Implementation';
 
 @injectable()
-export class GranularLogger
+export class HonoutLogger
     implements IFunctionality<ILogger, 'ILogger', ILoggerConfiguration>
 {
     private configuration: ILoggerConfiguration = {

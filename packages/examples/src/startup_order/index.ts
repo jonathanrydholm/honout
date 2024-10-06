@@ -9,7 +9,7 @@ import {
 } from '@honout/system';
 import { ILogger, ILoggerFactory } from '@honout/logger';
 import {
-    GranularWatcher,
+    HonoutWatcher,
     IWatchableEvent,
     IWatcher,
     Triggers,
@@ -31,13 +31,13 @@ class WatchReadMe implements IWatcher {
     }
 
     handle(event: IWatchableEvent, path: string): Promise<void> | void {
-        this.logger.get().info(`${path} - ${event}`);
+        this.logger.info(`${path} - ${event}`);
     }
 }
 
 @injectable()
 @WithFunctionality({
-    functionality: GranularWatcher,
+    functionality: HonoutWatcher,
     extend: [
         {
             identifier: WatcherIdentifiers.WATCHER,
@@ -51,7 +51,7 @@ class ApplicationA implements IApplication {}
 
 @injectable()
 @WithFunctionality({
-    functionality: GranularWatcher,
+    functionality: HonoutWatcher,
     extend: [
         {
             identifier: WatcherIdentifiers.WATCHER,

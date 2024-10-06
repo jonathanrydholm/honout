@@ -9,9 +9,9 @@ export function WithFunctionality<TClass, TLogicIdentifier, TConfiguration>(
     options: IWithFunctionalityOptions<TClass, TLogicIdentifier, TConfiguration>
 ) {
     return function (target: IClassDefinition<IApplication>) {
-        if (!target.prototype._granular_functionalities) {
-            target.prototype._granular_functionalities = [];
+        if (!target.prototype._honout_functionalities) {
+            target.prototype._honout_functionalities = [];
         }
-        target.prototype._granular_functionalities.push(options);
+        target.prototype._honout_functionalities.push(options);
     };
 }

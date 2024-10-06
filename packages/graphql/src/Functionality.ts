@@ -21,7 +21,7 @@ import {
 } from './Implementation';
 
 @injectable()
-export class GranularGraphql
+export class HonoutGraphql
     implements IFunctionality<IGraphQLOverrides, IGraphQLIdentifiers>
 {
     onLogicExtensions(

@@ -7,14 +7,14 @@ import {
 } from '@honout/system';
 import { ILogger, ILoggerFactory } from '@honout/logger';
 import {
-    GranularWatcher,
+    HonoutWatcher,
     IWatchableEvent,
     IWatcher,
     Triggers,
     WatcherIdentifiers,
 } from '@honout/watcher';
 import { join } from 'path';
-import { GranularPinoLogger } from '@honout/logger-pino';
+import { HonoutPinoLogger } from '@honout/logger-pino';
 
 @injectable()
 @Triggers(['change', 'add', 'addDir', 'unlink', 'unlinkDir'])
@@ -36,7 +36,7 @@ class WatchReadMe implements IWatcher {
 
 @injectable()
 @WithFunctionality({
-    functionality: GranularWatcher,
+    functionality: HonoutWatcher,
     extend: [
         {
             identifier: WatcherIdentifiers.WATCHER,
@@ -45,7 +45,7 @@ class WatchReadMe implements IWatcher {
     ],
 })
 @WithFunctionality({
-    functionality: GranularPinoLogger,
+    functionality: HonoutPinoLogger,
 })
 class Application implements IApplication {}
 

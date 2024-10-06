@@ -4,7 +4,7 @@ import { IMetricService } from './Types';
 import { MetricService } from './Implementation';
 
 @injectable()
-export class GranularMetrics implements IFunctionality<null, null> {
+export class HonoutMetrics implements IFunctionality<null, null> {
     onLogicExtensions(): void {}
 
     onConfigure(): void {}

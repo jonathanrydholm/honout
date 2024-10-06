@@ -6,6 +6,6 @@ import { IApplication } from '../../Types';
  */
 export function WithIdentifier(identifier: string) {
     return function (target: IClassDefinition<IApplication>) {
-        target.prototype._granular_application_identifier = identifier;
+        target.prototype._honout_application_identifier = identifier;
     };
 }

@@ -10,7 +10,7 @@ import { HttpServer } from './Implementation';
 import { injectable } from 'inversify';
 
 @injectable()
-export class GranularHttpServer
+export class HonoutHttpServer
     implements
         IFunctionality<
             IHttpServerOverridables,
@@ -50,15 +50,15 @@ export class GranularHttpServer
 
     bindInternals(container: Container): void {
         container
-            .bind<IHttpServer>('IGranularHttpServer')
+            .bind<IHttpServer>('IHonoutHttpServer')
             .to(HttpServer)
             .inSingletonScope();
     }
 
     async start(container: Container): Promise<void> {
-        container.get<IHttpServer>('IGranularHttpServer').configure();
+        container.get<IHttpServer>('IHonoutHttpServer').configure();
         await container
-            .get<IHttpServer>('IGranularHttpServer')
+            .get<IHttpServer>('IHonoutHttpServer')
             .start(this.configuration);
     }
 }
