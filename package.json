@@ -11,8 +11,9 @@
         "logger": "node publish.js logger logger/base",
         "logger-pino": "node publish.js logger-pino logger/pino",
         "metrics": "node publish.js metrics metrics/base",
-        "metrics-prometheus": "node publish.js metrics metrics/prometheus",
-        "watcher": "node publish.js watcher"
+        "metrics-prometheus": "node publish.js metrics-prometheus metrics/prometheus",
+        "watcher": "node publish.js watcher",
+        "http": "node publish.js http"
     },
     "devDependencies": {
         "@types/node": "22.6.0",
