@@ -1,3 +1,3 @@
 import { IHttpRequestHandler } from './IHttpRequestHandler';
 
-export type IHttpServerOverridables = IHttpRequestHandler;
+export type IHttpServerOverridables = IHttpRequestHandler<unknown>;

@@ -1,11 +1,21 @@
 import { Container, Factory, injectable } from '@honout/injection';
 import { IFunctionality, ILogicExtension } from '@honout/functionality';
-import { ILogger, ILoggerConfiguration } from './Types';
+import {
+    ILogger,
+    ILoggerConfiguration,
+    ServiceIdentifiers,
+    ServiceOverrides,
+} from './Types';
 import { Logger } from './Implementation';
 
 @injectable()
 export class HonoutLogger
-    implements IFunctionality<ILogger, 'ILogger', ILoggerConfiguration>
+    implements
+        IFunctionality<
+            ServiceOverrides,
+            ServiceIdentifiers,
+            ILoggerConfiguration
+        >
 {
     private configuration: ILoggerConfiguration = {
         name: '',
@@ -13,10 +23,16 @@ export class HonoutLogger
     };
 
     onLogicExtensions(
-        extensions: ILogicExtension<ILogger, 'ILogger'>[],
+        extensions: ILogicExtension<ServiceOverrides, ServiceIdentifiers>[],
         container: Container
     ): void {
-        container.rebind<ILogger>('ILogger').to(extensions[0].definitions[0]);
+        extensions.forEach(({ definitions, identifier }) => {
+            if (identifier === ServiceIdentifiers.LOGGER) {
+                container
+                    .rebind<ILogger>(ServiceIdentifiers.LOGGER)
+                    .to(definitions[0]);
+            }
+        });
     }
 
     onConfigure(configuration: ILoggerConfiguration): void {
@@ -24,13 +40,18 @@ export class HonoutLogger
     }
 
     bindInternals(container: Container): void {
-        container.bind<ILogger>('ILogger').to(Logger).inRequestScope();
+        container
+            .bind<ILogger>(ServiceIdentifiers.LOGGER)
+            .to(Logger)
+            .inRequestScope();
 
         container
             .bind<Factory<ILogger>>('ILoggerFactory')
             .toFactory<ILogger, [ILoggerConfiguration]>((context) => {
                 return (configuration: ILoggerConfiguration) => {
-                    const logger = context.container.get<ILogger>('ILogger');
+                    const logger = context.container.get<ILogger>(
+                        ServiceIdentifiers.LOGGER
+                    );
                     logger.init({
                         ...this.configuration,
                         ...configuration,

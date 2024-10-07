@@ -13,12 +13,12 @@ import {
     IWatchableEvent,
     IWatcher,
     Triggers,
-    WatcherIdentifiers,
+    ServiceIdentifiers,
 } from '@honout/watcher';
 import { join } from 'path';
 
 @injectable()
-@Triggers(['change', 'add', 'addDir', 'unlink', 'unlinkDir'])
+@Triggers(['file_created'])
 class WatchReadMe implements IWatcher {
     private logger: ILogger;
 
@@ -40,7 +40,7 @@ class WatchReadMe implements IWatcher {
     functionality: HonoutWatcher,
     extend: [
         {
-            identifier: WatcherIdentifiers.WATCHER,
+            identifier: ServiceIdentifiers.WATCHER,
             definitions: [WatchReadMe],
         },
     ],
@@ -54,7 +54,7 @@ class ApplicationA implements IApplication {}
     functionality: HonoutWatcher,
     extend: [
         {
-            identifier: WatcherIdentifiers.WATCHER,
+            identifier: ServiceIdentifiers.WATCHER,
             definitions: [WatchReadMe],
         },
     ],
@@ -64,7 +64,8 @@ class ApplicationA implements IApplication {}
 class ApplicationB implements IApplication {}
 
 new System()
-    .withApplications([ApplicationA, ApplicationB])
+    .registerApplication(ApplicationA)
+    .registerApplication(ApplicationB)
     .start()
     .then(() => {
         console.log('Application running');

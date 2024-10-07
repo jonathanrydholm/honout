@@ -1,24 +1,19 @@
 import { IFunctionality, ILogicExtension } from '@honout/functionality';
 import { Container } from '@honout/system';
-import {
-    IWatcher,
-    IWatchManager,
-    Overridables,
-    WatcherIdentifiers,
-} from './Types';
+import { IWatchManager, ServiceOverrides, ServiceIdentifiers } from './Types';
 import { WatchManager } from './Implementation';
 import { injectable } from 'inversify';
 
 @injectable()
 export class HonoutWatcher
-    implements IFunctionality<Overridables, WatcherIdentifiers>
+    implements IFunctionality<ServiceOverrides, ServiceIdentifiers>
 {
     onLogicExtensions(
-        extensions: ILogicExtension<IWatcher, WatcherIdentifiers>[],
+        extensions: ILogicExtension<ServiceOverrides, ServiceIdentifiers>[],
         container: Container
     ): void {
         extensions.forEach((extension) => {
-            if (extension.identifier === WatcherIdentifiers.WATCHER) {
+            if (extension.identifier === ServiceIdentifiers.WATCHER) {
                 extension.definitions.forEach((definition) => {
                     container
                         .bind(extension.identifier)
@@ -29,7 +24,7 @@ export class HonoutWatcher
         });
     }
 
-    onConfigure(configuration: never): void {}
+    onConfigure(): void {}
 
     bindInternals(container: Container): void {
         container

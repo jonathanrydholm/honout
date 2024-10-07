@@ -4,7 +4,7 @@ import { IWatchableEvent } from './IWatchableEvent';
 
 export interface IWatcher {
     /** Path to watch */
-    glob(): string;
+    watch?(): string;
     /** Will be called when one of the events specified as triggers has been fired */
     handle(event: IWatchableEvent, path: string): Promise<void> | void;
     /** Types of events the watcher should react to */

@@ -41,7 +41,7 @@ import { GraphQLContext } from './Context';
 class Application implements IApplication {}
 
 new System()
-    .withApplications([Application])
+    .registerApplication(Application)
     .start()
     .then(() => {
         console.log('Application running');

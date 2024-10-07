@@ -1,118 +1,92 @@
-import { Container } from '@honout/injection';
-import { v4 as uuidv4 } from 'uuid';
-import { HonoutLogger, ILoggerFactory } from '@honout/logger';
 import {
     IClassDefinition,
+    IHonoutFunctionality,
     IUnknownFunctionality,
     IUnknownLogicExtension,
 } from '@honout/functionality';
-import { IApplication } from '../Types';
+import { v4 as uuidv4 } from 'uuid';
+import { IApplication, ISystem } from '../Types';
+import { Container } from '@honout/injection';
 import { IInternalApplication } from '../Types/IInternalApplication';
+import { HonoutLogger } from '@honout/logger';
 
-export class System {
-    private container: Container;
-    private externalBindings?: (container: Container) => void | Promise<void>;
-    private externalConfigurations?: (
-        container: Container
-    ) => void | Promise<void>;
-    private externalStarts?: (container: Container) => void | Promise<void>;
+export class System implements ISystem {
+    /** System wide container. Top of the hierarchy */
+    private globalScope: Container;
 
     constructor() {
-        this.container = new Container();
+        this.globalScope = new Container();
     }
 
-    /** Sets applications of this system */
-    withApplications(applications: IClassDefinition<IApplication>[]) {
-        /*
-            Cast applications to internal applications which contain metadata through decorators
-        */
-        const internalApplications =
-            applications as IClassDefinition<IInternalApplication>[];
-        internalApplications.forEach((application) => {
-            this.container
-                .bind<IInternalApplication>('IApplication')
-                .to(application)
-                .inSingletonScope();
-        });
+    registerApplication(application: IClassDefinition<IApplication>): ISystem {
+        this.globalScope
+            .bind<IInternalApplication>('IApplication')
+            .to(application as IClassDefinition<IInternalApplication>)
+            .inSingletonScope();
         return this;
     }
 
-    onConfigureExternals(
-        callback: (container: Container) => void | Promise<void>
-    ): void {
-        this.externalConfigurations = callback;
-    }
+    async start(): Promise<void> {
+        const { instance } = this.bindAndReturnFunctionality(
+            this.globalScope,
+            HonoutLogger
+        );
+        await instance.bindInternals(this.globalScope);
 
-    onBindExternals(callback: (container: Container) => void | Promise<void>) {
-        this.externalBindings = callback;
-    }
-
-    onStartExternals(callback: (container: Container) => void | Promise<void>) {
-        this.externalStarts = callback;
-    }
-
-    /** Starts the system */
-    async start() {
-        const logger = new HonoutLogger();
-        logger.bindInternals(this.container);
-        const systemLogger = this.container.get<ILoggerFactory>(
-            'ILoggerFactory'
-        )({ name: 'System' });
-        const applications = this.getPrioritizedApplications();
-        const startableInstances: (() => Promise<void>)[] = [];
+        const applications = this.prioritizeApplications();
         for (const application of applications) {
-            systemLogger.info(
-                `Starting application ${application._honout_application_identifier}`
-            );
-            const container = new Container();
-            container.parent = this.container;
-            /*
-                May be undefined in case of no functionality decorators
-            */
-            if (application._honout_functionalities) {
-                for (const honoutFunctionality of application._honout_functionalities) {
-                    const { functionality, configure, extend } =
-                        honoutFunctionality;
+            await this.startApplication(application);
+        }
+    }
 
-                    const { instance, identifier } =
-                        this.bindAndReturnFunctionality(
-                            container,
-                            functionality
-                        );
+    /** Starts a single application */
+    private async startApplication(application: IInternalApplication) {
+        const scope = this.declareApplicationScope(application);
 
-                    systemLogger.trace(
-                        `Bound functionality ${identifier} to ${application._honout_application_identifier || 'Unknown application'}`
+        if (application._honout_functionalities) {
+            application.onPreBindFunctionalities &&
+                application.onPreBindFunctionalities(scope);
+            const instances = await Promise.all(
+                this.prioritizeFunctionalities(
+                    application._honout_functionalities
+                ).map(async ({ functionality, configure, extend }) => {
+                    const { instance } = this.bindAndReturnFunctionality(
+                        scope,
+                        functionality
                     );
-
                     await this.handleFunctionalityLifecycle(
-                        container,
+                        scope,
                         instance,
                         extend,
                         configure
                     );
+                    return instance;
+                })
+            );
+            application.onPostBindFunctionalities &&
+                application.onPostBindFunctionalities(scope);
 
-                    startableInstances.push(() => instance.start(container));
-                }
-            }
-
-            if (this.externalBindings) {
-                await this.externalBindings(this.container);
-            }
-            if (this.externalConfigurations) {
-                await this.externalConfigurations(this.container);
-            }
-
-            for (const instance of startableInstances) {
-                await instance();
-            }
-            if (this.externalStarts) {
-                await this.externalStarts(this.container);
+            for (const instance of instances) {
+                await instance.start(scope);
             }
         }
     }
 
-    private getPrioritizedApplications(): IInternalApplication[] {
-        return this.container
+    /** Returns the scope of an application */
+    private declareApplicationScope(
+        application: IInternalApplication
+    ): Container {
+        if (application._honout_globally_accessable) {
+            return this.globalScope;
+        }
+        const scope = new Container();
+        scope.parent = this.globalScope;
+        return scope;
+    }
+
+    /** Returns all applications sorted by their startup priority */
+    private prioritizeApplications(): IInternalApplication[] {
+        return this.globalScope
             .getAll<IInternalApplication>('IApplication')
             .sort(
                 (a, b) =>
@@ -121,18 +95,27 @@ export class System {
             );
     }
 
+    /** Returns all functionalities sorted by their startup priority */
+    private prioritizeFunctionalities(
+        functionalities: IHonoutFunctionality[]
+    ): IHonoutFunctionality[] {
+        return [...functionalities].sort(
+            (a, b) => (b.startPriority || 0) - (a.startPriority || 0)
+        );
+    }
+
     private bindAndReturnFunctionality(
-        container: Container,
+        scope: Container,
         definition: IClassDefinition<IUnknownFunctionality>
     ): { instance: IUnknownFunctionality; identifier: string } {
         const identifier =
             typeof definition === 'function' ? definition.name : uuidv4();
-        container
+        scope
             .bind<IUnknownFunctionality>(identifier)
             .to(definition)
             .inSingletonScope();
         return {
-            instance: container.get<IUnknownFunctionality>(identifier),
+            instance: scope.get<IUnknownFunctionality>(identifier),
             identifier,
         };
     }

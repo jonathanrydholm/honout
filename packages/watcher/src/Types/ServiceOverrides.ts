@@ -1,3 +1,3 @@
 import type { IWatcher } from './IWatcher';
 
-export type Overridables = IWatcher;
+export type ServiceOverrides = IWatcher;

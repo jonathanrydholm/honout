@@ -7,11 +7,10 @@
     "author": "",
     "license": "ISC",
     "scripts": {
-        "dev": "node ./scripts/dev.js",
-        "watcher-example": "EXAMPLE=watcher node ./scripts/dev.js",
-        "restful-example": "EXAMPLE=restful node ./scripts/dev.js",
-        "startup-order-example": "EXAMPLE=startup_order node ./scripts/dev.js",
-        "graphql-example": "EXAMPLE=graphql node ./scripts/dev.js"
+        "watcher": "EXAMPLE=watcher node ./scripts/dev.js",
+        "startup-order": "EXAMPLE=startup_order node ./scripts/dev.js",
+        "graphql": "EXAMPLE=graphql node ./scripts/dev.js",
+        "metrics": "EXAMPLE=metrics node ./scripts/dev.js"
     },
     "dependencies": {
         "@honout/watcher": "*",
@@ -19,7 +18,8 @@
         "@honout/logger": "*",
         "@honout/logger-pino": "*",
         "@honout/http": "*",
-        "@honout/graphql": "*"
+        "@honout/graphql": "*",
+        "@honout/metrics": "*"
     },
     "devDependencies": {
         "nodemon-webpack-plugin": "4.8.2",

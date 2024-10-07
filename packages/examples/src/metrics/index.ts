@@ -1,18 +1,23 @@
 import {
+    injectable,
     System,
+    WithFunctionality,
     IApplication,
     inject,
-    injectable,
-    WithFunctionality,
 } from '@honout/system';
-import { ILogger, ILoggerFactory } from '@honout/logger';
+import {
+    HonoutMetrics,
+    IMetricService,
+    INumericMetric,
+    ServiceIdentifiers as MetricIdentifiers,
+} from '@honout/metrics';
 import {
     HonoutWatcher,
     IWatchableEvent,
     IWatcher,
     Triggers,
     Watch,
-    ServiceIdentifiers,
+    ServiceIdentifiers as WatcherIdentifiers,
 } from '@honout/watcher';
 import { join } from 'path';
 
@@ -20,23 +25,31 @@ import { join } from 'path';
 @Watch(join(__dirname, '../', '../', '../', 'README.md'))
 @Triggers(['file_changed'])
 class WatchReadMe implements IWatcher {
-    private logger: ILogger;
+    private changeMetric: INumericMetric;
 
-    constructor(@inject('ILoggerFactory') loggerFactory: ILoggerFactory) {
-        this.logger = loggerFactory({ name: 'WatchReadMe' });
+    constructor(
+        @inject(MetricIdentifiers.METRIC_SERVICE) metrics: IMetricService
+    ) {
+        this.changeMetric = metrics.createNumericMetric(
+            'change_counter',
+            'file_change_counter'
+        );
     }
 
     handle(event: IWatchableEvent, path: string): Promise<void> | void {
-        this.logger.info(`${path} - ${event}`);
+        this.changeMetric.add(1);
     }
 }
 
 @injectable()
 @WithFunctionality({
+    functionality: HonoutMetrics,
+})
+@WithFunctionality({
     functionality: HonoutWatcher,
     extend: [
         {
-            identifier: ServiceIdentifiers.WATCHER,
+            identifier: WatcherIdentifiers.WATCHER,
             definitions: [WatchReadMe],
         },
     ],

@@ -1,6 +1,12 @@
 import { IFunctionality } from '@honout/functionality';
 import { Container, injectable } from '@honout/injection';
-import { HonoutLogger, ILogger, ILoggerConfiguration } from '@honout/logger';
+import {
+    HonoutLogger,
+    ILogger,
+    ILoggerConfiguration,
+    ServiceIdentifiers,
+    ServiceOverrides,
+} from '@honout/logger';
 import pino from 'pino';
 import type { Logger } from 'pino';
 
@@ -34,9 +40,14 @@ class PinoLogger implements ILogger {
 
 export class HonoutPinoLogger
     extends HonoutLogger
-    implements IFunctionality<ILogger, 'ILogger', ILoggerConfiguration>
+    implements
+        IFunctionality<
+            ServiceOverrides,
+            ServiceIdentifiers.LOGGER,
+            ILoggerConfiguration
+        >
 {
     postBindInternals(container: Container): void | Promise<void> {
-        container.rebind<ILogger>('ILogger').to(PinoLogger);
+        container.rebind<ILogger>(ServiceIdentifiers.LOGGER).to(PinoLogger);
     }
 }

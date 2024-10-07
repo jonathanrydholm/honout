@@ -1,14 +1,28 @@
 import { inject, injectable, multiInject, optional } from '@honout/system';
 import { ILogger, ILoggerFactory } from '@honout/logger';
-import { IWatcher, IWatchManager, WatcherIdentifiers } from '../Types';
+import {
+    IWatchableEvent,
+    IWatcher,
+    IWatchManager,
+    ServiceIdentifiers,
+} from '../Types';
 import { watch } from 'chokidar';
+
+type ChokidarEvents = 'add' | 'change' | 'unlink' | 'addDir' | 'unlinkDir';
 
 @injectable()
 export class WatchManager implements IWatchManager {
     private logger: ILogger;
+    private eventMapper: Record<IWatchableEvent, ChokidarEvents> = {
+        file_created: 'add',
+        file_changed: 'change',
+        file_deleted: 'unlink',
+        directory_created: 'addDir',
+        directory_deleted: 'unlinkDir',
+    };
 
     constructor(
-        @multiInject(WatcherIdentifiers.WATCHER)
+        @multiInject(ServiceIdentifiers.WATCHER)
         @optional()
         private watchers: IWatcher[],
         @inject('ILoggerFactory') loggerFactory: ILoggerFactory
@@ -18,13 +32,19 @@ export class WatchManager implements IWatchManager {
 
     async start() {
         this.watchers.forEach((watcher) => {
-            this.logger.info(`Creating watcher for ${watcher.glob()}`);
+            if (!watcher.watch) {
+                this.logger.error(
+                    'Watcher is does not contain any paths to watch'
+                );
+                return;
+            }
+            this.logger.info(`Creating watcher for ${watcher.watch()}`);
 
             const usePolling = watcher.usePolling
                 ? watcher.usePolling()
                 : undefined;
 
-            const instance = watch(watcher.glob(), {
+            const instance = watch(watcher.watch(), {
                 ignored: watcher.ignore ? watcher.ignore() : undefined,
                 persistent: watcher.persistent
                     ? watcher.persistent()
@@ -37,22 +57,25 @@ export class WatchManager implements IWatchManager {
                 binaryInterval: usePolling?.binaryInterval,
             });
             instance.on('ready', () => {
-                this.logger.info(`Watching ${watcher.glob()}`);
+                this.logger.info(`Watching ${watcher.watch()}`);
                 if (watcher.triggers) {
                     watcher.triggers().forEach((trigger) => {
-                        instance.on(trigger, (path: string) => {
-                            watcher.handle(trigger, path);
-                        });
+                        instance.on(
+                            this.eventMapper[trigger],
+                            (path: string) => {
+                                watcher.handle(trigger, path);
+                            }
+                        );
                     });
                 } else {
                     this.logger.warn(
-                        `No triggers defined for ${watcher.glob()}`
+                        `No triggers defined for ${watcher.watch()}`
                     );
                 }
             });
             instance.on('error', (error) => {
                 this.logger.error(
-                    `Received error while watching ${watcher.glob()}`,
+                    `Received error while watching ${watcher.watch()}`,
                     error
                 );
             });

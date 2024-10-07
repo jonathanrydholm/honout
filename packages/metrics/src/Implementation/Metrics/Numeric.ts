@@ -1,12 +1,14 @@
+import { injectable } from '@honout/system';
 import { INumericMetric } from '../../Types';
 import { Gauge } from 'prom-client';
 
+@injectable()
 export class NumericMetric implements INumericMetric {
     private gauge: Gauge;
 
-    constructor(name: string, help: string) {
+    initialize(name: string, description: string): void {
         this.gauge = new Gauge({
-            help,
+            help: description,
             name,
         });
     }

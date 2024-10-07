@@ -1,6 +1,6 @@
 export type IWatchableEvent =
-    | 'add'
-    | 'change'
-    | 'unlink'
-    | 'addDir'
-    | 'unlinkDir';
+    | 'file_created'
+    | 'file_changed'
+    | 'file_deleted'
+    | 'directory_created'
+    | 'directory_deleted';

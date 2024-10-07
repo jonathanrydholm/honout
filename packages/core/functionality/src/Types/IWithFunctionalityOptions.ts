@@ -13,6 +13,9 @@ export interface IWithFunctionalityOptions<
     functionality: IClassDefinition<
         IFunctionality<TClass, TLogicIdentifier, TConfiguration>
     >;
-    /** Logic extensions of functionality */
+    /** Extend the functionality by overriding internal injected services */
     extend?: ILogicExtension<TClass, TLogicIdentifier>[];
+
+    /** Dictates the starting order of a functionality */
+    startPriority?: number;
 }
