@@ -2,7 +2,7 @@
 
 ## Motivation
 
-Creates a standardized way of using metrics in applications. By default, prometheus is used as a metric collector but this can easily be replaced using @honout extension capabilities
+Creates a standardized way of using metrics in applications.
 
 ## Usage
 

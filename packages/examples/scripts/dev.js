@@ -19,6 +19,15 @@ const getEntryPoint = () => {
         case 'metrics': {
             return './src/metrics/index.ts';
         }
+        case 'logger': {
+            return './src/logger/base/index.ts';
+        }
+        case 'pino-logger': {
+            return './src/logger/pino/index.ts';
+        }
+        case 'http': {
+            return './src/http/index.ts';
+        }
         default: {
             return './src/index.ts';
         }

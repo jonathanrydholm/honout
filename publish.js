@@ -31,6 +31,13 @@ packageJson.repository = {
     directory: `packages/${packagePath || package}`,
 };
 packageJson.files = ['dist'];
+packageJson.keywords = [
+    'honout',
+    'injection',
+    'framework',
+    'typescript',
+    'opiniated',
+];
 
 packageJson.dependencies = Object.entries(packageJson.dependencies).reduce(
     (acc, [packageName, version]) => {

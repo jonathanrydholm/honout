@@ -1,7 +1,15 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import { IHttpMethod } from './IHttpMethod';
+import { IHttpResponse } from './Response';
+import { IHttpRequest } from './Request';
 
-export interface IHttpRequestHandler<TResponse> {
-    handle(req: FastifyRequest, res: FastifyReply): Promise<TResponse>;
-    getPath(): string;
-    getMethod(): 'post' | 'get' | 'delete' | 'put' | 'patch' | 'all';
+export interface IHttpRequestHandler<
+    TQuery = never,
+    TParams = never,
+    TBody = never,
+> {
+    handle(
+        request: IHttpRequest<TQuery, TParams, TBody>
+    ): IHttpResponse | Promise<IHttpResponse>;
+    getPath?(): string;
+    getMethod?(): IHttpMethod;
 }

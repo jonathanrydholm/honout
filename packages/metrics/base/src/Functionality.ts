@@ -53,6 +53,12 @@ export class HonoutMetrics
                 extension.definitions.forEach((definition) => {
                     container.rebind(extension.identifier).to(definition);
                 });
+            } else if (
+                extension.identifier === ServiceIdentifiers.METRIC_SERVICE
+            ) {
+                extension.definitions.forEach((definition) => {
+                    container.rebind(extension.identifier).to(definition);
+                });
             }
         });
     }

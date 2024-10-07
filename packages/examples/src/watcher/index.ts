@@ -5,7 +5,11 @@ import {
     injectable,
     WithFunctionality,
 } from '@honout/system';
-import { ILogger, ILoggerFactory } from '@honout/logger';
+import {
+    ILogger,
+    ILoggerFactory,
+    ServiceIdentifiers as LoggerIdentifiers,
+} from '@honout/logger';
 import {
     HonoutWatcher,
     IWatchableEvent,
@@ -22,7 +26,9 @@ import { join } from 'path';
 class WatchReadMe implements IWatcher {
     private logger: ILogger;
 
-    constructor(@inject('ILoggerFactory') loggerFactory: ILoggerFactory) {
+    constructor(
+        @inject(LoggerIdentifiers.LOGGER_FACTORY) loggerFactory: ILoggerFactory
+    ) {
         this.logger = loggerFactory({ name: 'WatchReadMe' });
     }
 

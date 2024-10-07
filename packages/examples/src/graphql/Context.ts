@@ -1,10 +1,12 @@
 import { IGraphQLContext } from '@honout/graphql';
-import { FastifyRequest, FastifyReply } from '@honout/http';
+import { IHttpRequest } from '@honout/http';
 import { injectable } from '@honout/system';
 
 @injectable()
 export class GraphQLContext implements IGraphQLContext {
-    async onInitialize(req: FastifyRequest, res: FastifyReply): Promise<void> {
+    async onInitialize(
+        request: IHttpRequest<unknown, unknown, unknown>
+    ): Promise<void> {
         await new Promise<void>((resolve) => setTimeout(resolve, 200));
     }
 }

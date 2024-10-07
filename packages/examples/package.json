@@ -10,7 +10,10 @@
         "watcher": "EXAMPLE=watcher node ./scripts/dev.js",
         "startup-order": "EXAMPLE=startup_order node ./scripts/dev.js",
         "graphql": "EXAMPLE=graphql node ./scripts/dev.js",
-        "metrics": "EXAMPLE=metrics node ./scripts/dev.js"
+        "metrics": "EXAMPLE=metrics node ./scripts/dev.js",
+        "pino-logger": "EXAMPLE=pino-logger node ./scripts/dev.js",
+        "logger": "EXAMPLE=logger node ./scripts/dev.js",
+        "http": "EXAMPLE=http node ./scripts/dev.js"
     },
     "dependencies": {
         "@honout/watcher": "*",
@@ -19,7 +22,8 @@
         "@honout/logger-pino": "*",
         "@honout/http": "*",
         "@honout/graphql": "*",
-        "@honout/metrics": "*"
+        "@honout/metrics": "*",
+        "@honout/metrics-prometheus": "*"
     },
     "devDependencies": {
         "nodemon-webpack-plugin": "4.8.2",

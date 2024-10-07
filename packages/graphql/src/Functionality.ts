@@ -9,9 +9,8 @@ import {
     IGraphQLSchemaManager,
 } from './Types';
 import {
-    FastifyReply,
-    FastifyRequest,
-    HttpServerIdentifiers,
+    ServiceIdentifiers as HttpIdentifiers,
+    IHttpRequest,
     IHttpRequestHandler,
 } from '@honout/http';
 import {
@@ -56,9 +55,7 @@ export class HonoutGraphql
 
     bindInternals(container: Container): void {
         container
-            .bind<
-                IHttpRequestHandler<unknown>
-            >(HttpServerIdentifiers.REQUEST_HANDLER)
+            .bind<IHttpRequestHandler<unknown>>(HttpIdentifiers.REQUEST_HANDLER)
             .to(GraphqlRequestHandler)
             .inSingletonScope();
         container
@@ -75,13 +72,13 @@ export class HonoutGraphql
             >(`Factory<${IGraphQLIdentifiers.CONTEXT}>`)
             .toFactory<
                 Promise<IGraphQLContext>,
-                [FastifyRequest, FastifyReply]
+                [IHttpRequest<unknown, unknown, unknown>]
             >((context) => {
-                return async (request, reply) => {
+                return async (request) => {
                     const ctx = context.container.get<IGraphQLContext>(
                         IGraphQLIdentifiers.CONTEXT
                     );
-                    await ctx.onInitialize(request, reply);
+                    await ctx.onInitialize(request);
                     return ctx;
                 };
             });

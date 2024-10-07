@@ -1,10 +1,11 @@
-import { FastifyReply, FastifyRequest } from '@honout/http';
+import { IHttpRequest } from '@honout/http';
 
 export interface IGraphQLContext {
-    onInitialize(req: FastifyRequest, res: FastifyReply): Promise<void>;
+    onInitialize(
+        request: IHttpRequest<unknown, unknown, unknown>
+    ): Promise<void>;
 }
 
 export type IGraphQLContextFactory = (
-    req: FastifyRequest,
-    res: FastifyReply
+    request: IHttpRequest<unknown, unknown, unknown>
 ) => Promise<IGraphQLContext>;

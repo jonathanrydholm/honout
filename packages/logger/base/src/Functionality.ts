@@ -46,7 +46,7 @@ export class HonoutLogger
             .inRequestScope();
 
         container
-            .bind<Factory<ILogger>>('ILoggerFactory')
+            .bind<Factory<ILogger>>(ServiceIdentifiers.LOGGER_FACTORY)
             .toFactory<ILogger, [ILoggerConfiguration]>((context) => {
                 return (configuration: ILoggerConfiguration) => {
                     const logger = context.container.get<ILogger>(

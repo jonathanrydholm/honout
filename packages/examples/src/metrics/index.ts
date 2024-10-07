@@ -6,11 +6,11 @@ import {
     inject,
 } from '@honout/system';
 import {
-    HonoutMetrics,
     IMetricService,
     INumericMetric,
     ServiceIdentifiers as MetricIdentifiers,
 } from '@honout/metrics';
+import { HonoutPrometheusMetrics } from '@honout/metrics-prometheus';
 import {
     HonoutWatcher,
     IWatchableEvent,
@@ -20,6 +20,7 @@ import {
     ServiceIdentifiers as WatcherIdentifiers,
 } from '@honout/watcher';
 import { join } from 'path';
+import { HonoutHttpServer } from '@honout/http';
 
 @injectable()
 @Watch(join(__dirname, '../', '../', '../', 'README.md'))
@@ -38,12 +39,23 @@ class WatchReadMe implements IWatcher {
 
     handle(event: IWatchableEvent, path: string): Promise<void> | void {
         this.changeMetric.add(1);
+        setTimeout(() => {
+            fetch('http://localhost:4200/metrics')
+                .then((res) => res.text())
+                .then(console.log);
+        }, 5000);
     }
 }
 
 @injectable()
 @WithFunctionality({
-    functionality: HonoutMetrics,
+    functionality: HonoutPrometheusMetrics,
+})
+@WithFunctionality({
+    functionality: HonoutHttpServer,
+    configure: {
+        port: 4200,
+    },
 })
 @WithFunctionality({
     functionality: HonoutWatcher,

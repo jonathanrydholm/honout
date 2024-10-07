@@ -1,5 +1,9 @@
 import { inject, injectable, multiInject, optional } from '@honout/system';
-import { ILogger, ILoggerFactory } from '@honout/logger';
+import {
+    ILogger,
+    ILoggerFactory,
+    ServiceIdentifiers as LoggerIdentifiers,
+} from '@honout/logger';
 import {
     IWatchableEvent,
     IWatcher,
@@ -25,7 +29,7 @@ export class WatchManager implements IWatchManager {
         @multiInject(ServiceIdentifiers.WATCHER)
         @optional()
         private watchers: IWatcher[],
-        @inject('ILoggerFactory') loggerFactory: ILoggerFactory
+        @inject(LoggerIdentifiers.LOGGER_FACTORY) loggerFactory: ILoggerFactory
     ) {
         this.logger = loggerFactory({ name: 'WatchManager' });
     }

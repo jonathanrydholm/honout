@@ -1,5 +1,5 @@
+import { INumericMetric } from '@honout/metrics';
 import { injectable } from '@honout/system';
-import { INumericMetric } from '../../Types';
 import { Gauge } from 'prom-client';
 
 @injectable()

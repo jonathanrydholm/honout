@@ -1,7 +1,9 @@
 import {
-    FastifyReply,
-    FastifyRequest,
+    IHttpRequest,
     IHttpRequestHandler,
+    Method,
+    Route,
+    StringResponse,
 } from '@honout/http';
 import { inject, injectable } from '@honout/system';
 import { IApollo, IGraphQLContextFactory, IGraphQLIdentifiers } from '../Types';
@@ -9,16 +11,20 @@ import { HeaderMap, HTTPGraphQLRequest } from '@apollo/server';
 import { parse } from 'url';
 
 @injectable()
-export class GraphqlRequestHandler implements IHttpRequestHandler<string> {
+@Route('/graphql')
+@Method('all')
+export class GraphqlRequestHandler implements IHttpRequestHandler {
     constructor(
         @inject('IGraphQLApolloServer') private apollo: IApollo,
         @inject(`Factory<${IGraphQLIdentifiers.CONTEXT}>`)
         private contextFactory: IGraphQLContextFactory
     ) {}
 
-    async handle(req: FastifyRequest, res: FastifyReply): Promise<string> {
+    async handle(
+        request: IHttpRequest<unknown, unknown, unknown>
+    ): Promise<StringResponse> {
         const headers = new HeaderMap();
-        for (const [key, value] of Object.entries(req.headers)) {
+        for (const [key, value] of Object.entries(request.getHeaders())) {
             if (value !== undefined) {
                 headers.set(
                     key,
@@ -28,44 +34,36 @@ export class GraphqlRequestHandler implements IHttpRequestHandler<string> {
         }
 
         const httpGraphQLRequest: HTTPGraphQLRequest = {
-            method: req.method.toUpperCase(),
+            method: request.getMethod().toUpperCase(),
             headers,
-            search: parse(req.url).search ?? '',
-            body: req.body,
+            search: parse(request.getUrl()).search ?? '',
+            body: request.getBody(),
         };
 
         const httpGraphQLResponse = await this.apollo
             .getServer()
             .executeHTTPGraphQLRequest({
                 httpGraphQLRequest,
-                context: () => this.contextFactory(req, res),
+                context: () => this.contextFactory(request),
             });
 
-        for (const [key, value] of httpGraphQLResponse.headers) {
-            res.raw.setHeader(key, value);
-        }
-
-        res.code(200);
-
         if (httpGraphQLResponse.body.kind === 'complete') {
-            return httpGraphQLResponse.body.string;
+            const response = new StringResponse(
+                httpGraphQLResponse.body.string
+            );
+            for (const [key, value] of httpGraphQLResponse.headers) {
+                response.setHeader(key, value);
+            }
+            return response;
         }
 
         let output = '';
         for await (const chunk of httpGraphQLResponse.body.asyncIterator) {
             output = output + chunk;
-            if (typeof (res as any).flush === 'function') {
-                (res as any).flush();
-            }
+            // if (typeof (res as any).flush === 'function') {
+            //     (res as any).flush();
+            // }
         }
-        return output;
-    }
-
-    getPath(): string {
-        return '/graphql';
-    }
-
-    getMethod(): 'post' | 'get' | 'delete' | 'put' | 'patch' | 'all' {
-        return 'all';
+        return new StringResponse(output);
     }
 }

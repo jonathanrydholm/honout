@@ -1,10 +1,10 @@
 import { IFunctionality, ILogicExtension } from '@honout/functionality';
 import { Container } from '@honout/system';
 import {
-    HttpServerIdentifiers,
+    ServiceIdentifiers,
     IHttpServer,
     IHttpServerConfiguration,
-    IHttpServerOverridables,
+    ServiceOverrides,
 } from './Types';
 import { HttpServer } from './Implementation';
 import { injectable } from 'inversify';
@@ -13,24 +13,19 @@ import { injectable } from 'inversify';
 export class HonoutHttpServer
     implements
         IFunctionality<
-            IHttpServerOverridables,
-            HttpServerIdentifiers,
+            ServiceOverrides,
+            ServiceIdentifiers,
             IHttpServerConfiguration
         >
 {
     private configuration: IHttpServerConfiguration;
 
     onLogicExtensions(
-        extensions: ILogicExtension<
-            IHttpServerOverridables,
-            HttpServerIdentifiers
-        >[],
+        extensions: ILogicExtension<ServiceOverrides, ServiceIdentifiers>[],
         container: Container
     ): void {
         extensions.forEach((extension) => {
-            if (
-                extension.identifier === HttpServerIdentifiers.REQUEST_HANDLER
-            ) {
+            if (extension.identifier === ServiceIdentifiers.REQUEST_HANDLER) {
                 extension.definitions.forEach((definition) => {
                     container
                         .bind(extension.identifier)
@@ -50,15 +45,15 @@ export class HonoutHttpServer
 
     bindInternals(container: Container): void {
         container
-            .bind<IHttpServer>('IHonoutHttpServer')
+            .bind<IHttpServer>(ServiceIdentifiers.HTTP_SERVER)
             .to(HttpServer)
             .inSingletonScope();
     }
 
     async start(container: Container): Promise<void> {
-        container.get<IHttpServer>('IHonoutHttpServer').configure();
+        container.get<IHttpServer>(ServiceIdentifiers.HTTP_SERVER).configure();
         await container
-            .get<IHttpServer>('IHonoutHttpServer')
+            .get<IHttpServer>(ServiceIdentifiers.HTTP_SERVER)
             .start(this.configuration);
     }
 }
