@@ -12,6 +12,10 @@ module.exports = (production, entry) => ({
     performance: {
         hints: false,
     },
+    externals: {
+        // Exclude esbuild from the bundle
+        esbuild: 'commonjs esbuild',
+    },
     watch: !production,
     module: {
         rules: [

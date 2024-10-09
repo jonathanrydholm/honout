@@ -28,6 +28,9 @@ const getEntryPoint = () => {
         case 'http': {
             return './src/http/index.ts';
         }
+        case 'react-ssr': {
+            return './src/react-ssr/index.ts';
+        }
         default: {
             return './src/index.ts';
         }

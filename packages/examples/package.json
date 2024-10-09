@@ -13,7 +13,8 @@
         "metrics": "EXAMPLE=metrics node ./scripts/dev.js",
         "pino-logger": "EXAMPLE=pino-logger node ./scripts/dev.js",
         "logger": "EXAMPLE=logger node ./scripts/dev.js",
-        "http": "EXAMPLE=http node ./scripts/dev.js"
+        "http": "EXAMPLE=http node ./scripts/dev.js",
+        "react-ssr": "EXAMPLE=react-ssr node ./scripts/dev.js"
     },
     "dependencies": {
         "@honout/watcher": "*",
@@ -23,7 +24,8 @@
         "@honout/http": "*",
         "@honout/graphql": "*",
         "@honout/metrics": "*",
-        "@honout/metrics-prometheus": "*"
+        "@honout/metrics-prometheus": "*",
+        "@honout/react-ssr": "*"
     },
     "devDependencies": {
         "nodemon-webpack-plugin": "4.8.2",
