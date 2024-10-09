@@ -1,5 +1,3 @@
-import { Title } from './title';
-
 const Root = ({ children }) => {
     return (
         <html lang="en">
@@ -17,7 +15,7 @@ const Root = ({ children }) => {
                     content="Tue, 01 Jan 1980 1:00:00 GMT"
                 />
                 <meta httpEquiv="pragma" content="no-cache" />
-                <Title />
+                <title>Some title</title>
             </head>
             <body>{children}</body>
         </html>
