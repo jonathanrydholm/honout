@@ -5,44 +5,11 @@ import { build } from 'esbuild';
 import { renderToPipeableStream, renderToString } from 'react-dom/server';
 import { runInNewContext } from 'vm';
 import React, { ReactNode, Suspense } from 'react';
-import Runtime from 'react/jsx-runtime';
-import { readdirSync, statSync } from 'fs';
-import {
-    Method,
-    Route,
-    IHttpRequestHandler,
-    StreamResponse,
-    IHttpResponse,
-} from '@honout/http';
 import { createServer } from 'http';
 import { access, readdir, stat, writeFile } from 'fs/promises';
 
 type StandardComponent = (props: any) => ReactNode;
 type AsyncComponent = (props: any) => Promise<ReactNode>;
-
-const originalJsx = Runtime.jsx;
-const originalJsxs = Runtime.jsxs;
-
-const jsx = (type, props, key) => {
-    if (type === 'html') {
-        console.log('html');
-    }
-
-    // Otherwise, use the original jsx function
-    return originalJsx(type, props, key);
-};
-
-const jsxs = (type, props, key) => {
-    if (type === 'html') {
-        console.log('html');
-    }
-
-    return originalJsxs(type, props, key);
-};
-
-// type ITree = {
-//     [key: string]: HonoutComponent | ITree;
-// };
 
 @injectable()
 export class HonoutReactSSR
@@ -111,7 +78,6 @@ class ComponentTree {
                 '.ts': 'ts',
             },
         });
-        //
         const { outputFiles } = await build({
             entryPoints: [join(this.routerPath, '../', 'App.tsx')],
             bundle: true,
@@ -127,7 +93,7 @@ class ComponentTree {
                 '.ts': 'ts',
             },
         });
-        //
+
         const module = { exports: {} };
 
         runInNewContext(outputFiles[0].text, {
@@ -144,8 +110,8 @@ class ComponentTree {
             setTimeout: setTimeout,
             process: process,
             fetch: fetch,
+            console: console,
         });
-
         const App = (module.exports as any).default;
 
         const server2 = createServer((req, res) => {
@@ -180,10 +146,11 @@ class ComponentTree {
                         <div id="root">
                             <App />
                         </div>
+                        <script src="/hydrate.js" defer></script>
                     </body>
                 </html>,
                 {
-                    bootstrapScripts: ['/hydrate.js'],
+                    bootstrapScripts: [],
                     onShellReady() {
                         res.setHeader('content-type', 'text/html');
                         pipe(res);
@@ -191,6 +158,7 @@ class ComponentTree {
                 }
             );
         });
+        //
 
         server2.listen(4000, console.log);
 

@@ -1,8 +1,16 @@
 import { hydrateRoot } from 'react-dom/client';
-import App from './App'; // Your main React component
+import ClientComponent from './ClientComponent';
+import Counter from './Counter';
 
-// Find the root element that the server rendered
-const container = document.getElementById('root');
+const counterElements = document.getElementsByClassName('Counter');
 
-// Hydrate the app
-hydrateRoot(container, <App />);
+for (let i = 0; i < counterElements.length; i++) {
+    hydrateRoot(counterElements[i], <Counter />);
+}
+
+const clientComponentElements =
+    document.getElementsByClassName('ClientComponent');
+
+for (let i = 0; i < clientComponentElements.length; i++) {
+    hydrateRoot(clientComponentElements[i], <ClientComponent />);
+}
