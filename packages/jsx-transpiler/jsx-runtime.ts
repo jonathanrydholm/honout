@@ -7,7 +7,7 @@ export function jsx(type, props, key) {
     ) {
         const suspendedComponent = (() => {
             let rendered;
-            const promise = (type as any)().then(
+            const promise = (type as any)(props).then(
                 (result) => (rendered = result)
             );
 
@@ -34,7 +34,7 @@ export function jsxs(type, props, key) {
     ) {
         const suspendedComponent = (() => {
             let rendered;
-            const promise = (type as any)().then(
+            const promise = (type as any)(props).then(
                 (result) => (rendered = result)
             );
 

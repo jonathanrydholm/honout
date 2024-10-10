@@ -4,7 +4,7 @@ import { join } from 'path';
 import { build } from 'esbuild';
 import { renderToPipeableStream, renderToString } from 'react-dom/server';
 import { runInNewContext } from 'vm';
-import { ReactNode, Suspense } from 'react';
+import React, { ReactNode, Suspense } from 'react';
 import Runtime from 'react/jsx-runtime';
 import { readdirSync, statSync } from 'fs';
 import {
@@ -15,7 +15,7 @@ import {
     IHttpResponse,
 } from '@honout/http';
 import { createServer } from 'http';
-import { access, readdir, stat } from 'fs/promises';
+import { access, readdir, stat, writeFile } from 'fs/promises';
 
 type StandardComponent = (props: any) => ReactNode;
 type AsyncComponent = (props: any) => Promise<ReactNode>;
@@ -97,132 +97,109 @@ class ComponentTree {
     constructor(private routerPath: string) {}
 
     async render(route: string) {
-        //console.log(this.templates);
+        const { outputFiles: clientOutputFiles } = await build({
+            entryPoints: [join(this.routerPath, '../', 'Client.tsx')],
+            bundle: true,
+            write: false,
+            outdir: '/',
+            jsx: 'transform',
+            jsxImportSource: '@honout/jsx-transpiler',
+            platform: 'browser',
+            format: 'cjs',
+            loader: {
+                '.tsx': 'tsx',
+                '.ts': 'ts',
+            },
+        });
+        //
+        const { outputFiles } = await build({
+            entryPoints: [join(this.routerPath, '../', 'App.tsx')],
+            bundle: true,
+            write: false,
+            outdir: '/',
+            jsx: 'transform',
+            jsxImportSource: '@honout/jsx-transpiler',
+            platform: 'node',
+            format: 'cjs',
+            external: ['react'],
+            loader: {
+                '.tsx': 'tsx',
+                '.ts': 'ts',
+            },
+        });
+        //
+        const module = { exports: {} };
 
-        // console.log(this.bundledComponents);
-        // console.log(segments);
+        runInNewContext(outputFiles[0].text, {
+            module,
+            exports: module.exports,
+            require: (path) => {
+                switch (path) {
+                    case 'react':
+                        return require('react');
+                    case 'react/jsx-runtime':
+                        return require('react/jsx-runtime');
+                }
+            },
+            setTimeout: setTimeout,
+            process: process,
+            fetch: fetch,
+        });
 
-        // const ordered: HonoutComponent[] = [];
+        const App = (module.exports as any).default;
 
-        // const orderRecursively = async (currentSegments: string[]) => {
-        //     if (currentSegments.length === 0) {
-        //         return;
-        //     }
-        //     const match = this.bundledComponents.find((component) =>
-        //         component
-        //             .getSegments()
-        //             .every(
-        //                 (segment) =>
-        //                     currentSegments.includes(segment) &&
-        //                     component.getSegments().length ===
-        //                         currentSegments.length
-        //             )
-        //     );
-        //     ordered.push(match);
-        //     orderRecursively(
-        //         currentSegments.filter((_, i) => i < currentSegments.length - 1)
-        //     );
-        // };
+        const server2 = createServer((req, res) => {
+            if (req.url.includes('hydrate.js')) {
+                return res.end(clientOutputFiles[0].text);
+            }
 
-        // orderRecursively(segments);
-
-        // const MapComponent = (honoutComponent: HonoutComponent) => {
-        //     if (
-        //         honoutComponent.Component.constructor.name === 'AsyncFunction'
-        //     ) {
-        //         const renderAsyncComponent = () => {
-        //             let rendered;
-        //             const promise = (
-        //                 honoutComponent.Component({}) as Promise<ReactNode>
-        //             ).then((result) => (rendered = result));
-
-        //             return {
-        //                 read() {
-        //                     if (!rendered) {
-        //                         throw promise;
-        //                     }
-        //                     return rendered;
-        //                 },
-        //             };
-        //         };
-
-        //         const asyncComponent = renderAsyncComponent();
-
-        //         const AsyncWrapper = () => {
-        //             const rendered = asyncComponent.read();
-        //             return rendered;
-        //         };
-
-        //         return (props: { children?: ReactNode }) => {
-        //             <Suspense fallback={<div>Loading</div>}>
-        //                 <AsyncWrapper />
-        //             </Suspense>;
-        //         };
-        //     } else {
-        //         const ToRender = honoutComponent.Component as (props: {
-        //             children?: ReactNode;
-        //         }) => ReactNode;
-        //         return (props: { children?: ReactNode }) => {
-        //             return <ToRender children={props.children} />;
-        //         };
-        //     }
-        // };
-        // ordered.reverse();
-        // const render = (index: number) => {
-        //     if (!ordered[index]) {
-        //         return null;
-        //     }
-        //     const Component = ordered[index].Component;
-        //     if (Component.constructor.name === 'AsyncFunction') {
-        //         const RenderableComponent = Component as AsyncComponent;
-
-        //         const children = render(index + 1);
-
-        //         const App = () => {
-        //             const suspendedComponent = (() => {
-        //                 let rendered;
-        //                 const promise = RenderableComponent({}).then(
-        //                     (result) => (rendered = result)
-        //                 );
-
-        //                 return {
-        //                     read() {
-        //                         if (!rendered) {
-        //                             throw promise;
-        //                         }
-        //                         return rendered;
-        //                     },
-        //                 };
-        //             })();
-        //             const AsyncWrapper = () => suspendedComponent.read();
-
-        //             return (
-        //                 <Suspense fallback={<div>Loading</div>}>
-        //                     <AsyncWrapper />
-        //                     {children}
-        //                 </Suspense>
-        //             );
-        //         };
-        //         //
-        //         return <App></App>;
-        //     } else {
-        //         const Renderable = Component as StandardComponent;
-        //         const children = render(index + 1);
-        //         return <Renderable>{children}</Renderable>;
-        //     }
-        // };
-
-        // const createTemplateStructure = (parentTemplate: Template) => {
-        //     parentTemplate.
-        // }
-
-        const server = createServer((req, res) => {
-            if (req.url.includes('.')) {
-                // File serving
+            if (req.url.includes('.') && !req.url.endsWith('.js')) {
                 res.statusCode = 404;
                 return res.end('Not found');
             }
 
+            const { pipe } = renderToPipeableStream(
+                <html lang="en">
+                    <head>
+                        <meta charSet="utf-8" />
+                        <meta
+                            name="viewport"
+                            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+                        />
+                        <meta httpEquiv="cache-control" content="max-age=0" />
+                        <meta httpEquiv="cache-control" content="no-cache" />
+                        <meta httpEquiv="expires" content="0" />
+                        <meta
+                            httpEquiv="expires"
+                            content="Tue, 01 Jan 1980 1:00:00 GMT"
+                        />
+                        <meta httpEquiv="pragma" content="no-cache" />
+                        <title>Some title</title>
+                    </head>
+                    <body>
+                        <div id="root">
+                            <App />
+                        </div>
+                    </body>
+                </html>,
+                {
+                    bootstrapScripts: ['/hydrate.js'],
+                    onShellReady() {
+                        res.setHeader('content-type', 'text/html');
+                        pipe(res);
+                    },
+                }
+            );
+        });
+
+        server2.listen(4000, console.log);
+
+        const server = createServer((req, res) => {
+            if (req.url.includes('.')) {
+                res.statusCode = 404;
+                return res.end('Not found');
+            }
+            //
             const segments = req.url.split('/').filter((segment) => segment);
 
             const matchingTemplates = this.templates
