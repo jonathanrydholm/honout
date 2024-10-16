@@ -1,7 +1,11 @@
 import { useState } from 'react';
 
-const Counter = () => {
-    const [counter, setCounter] = useState(0);
+interface ICounter {
+    initial: number;
+}
+
+const Counter = ({ initial }: ICounter) => {
+    const [counter, setCounter] = useState(initial);
     return (
         <button onClick={() => setCounter(counter + 1)}>
             Counter: {counter}

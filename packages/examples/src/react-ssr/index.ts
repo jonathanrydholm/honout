@@ -17,9 +17,9 @@ import { join } from 'path';
             '../',
             '../',
             'packages',
-            'react-test',
+            'react-ssr',
             'src',
-            'router'
+            'App'
         ),
     },
 })

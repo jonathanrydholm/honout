@@ -9,6 +9,7 @@
         "build": "tsc -b"
     },
     "dependencies": {
+        "@honout/test-react": "*",
         "@honout/jsx-transpiler": "*",
         "@honout/http": "*",
         "@honout/functionality": "*",

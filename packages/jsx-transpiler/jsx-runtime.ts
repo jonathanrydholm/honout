@@ -8,9 +8,9 @@ export function jsx(type, props, key) {
         if (type.constructor.name === 'AsyncFunction') {
             const suspendedComponent = (() => {
                 let rendered;
-                const promise = (type as any)(props).then(
-                    (result) => (rendered = result)
-                );
+                const promise = (type as any)(
+                    props ? { ...props, transform: console.log } : {}
+                ).then((result) => (rendered = result));
 
                 return {
                     read() {
@@ -22,25 +22,8 @@ export function jsx(type, props, key) {
                 };
             })();
             const AsyncWrapper = () => suspendedComponent.read();
-            if (props.fallback) {
-                // Wrap with suspense if fallback prop is detected
-                return originalJsx(
-                    Suspense,
-                    {
-                        fallback: props.fallback,
-                        children: originalJsx(AsyncWrapper, props, key),
-                    },
-                    key
-                );
-            }
             return originalJsx(AsyncWrapper, props, key);
         } else {
-            if (serverSide) {
-                return originalJsx('div', {
-                    children: originalJsx(type, props, key),
-                    className: type.name,
-                });
-            }
             return originalJsx(type, props, key);
         }
     }
@@ -67,25 +50,8 @@ export function jsxs(type, props, key) {
                 };
             })();
             const AsyncWrapper = () => suspendedComponent.read();
-            if (props.fallback) {
-                // Wrap with suspense if fallback prop is detected
-                return originalJsxs(
-                    Suspense,
-                    {
-                        fallback: props.fallback,
-                        children: originalJsxs(AsyncWrapper, props, key),
-                    },
-                    key
-                );
-            }
             return originalJsxs(AsyncWrapper, props, key);
         } else {
-            if (serverSide) {
-                return originalJsxs('div', {
-                    children: originalJsxs(type, props, key),
-                    className: type.name,
-                });
-            }
             return originalJsxs(type, props, key);
         }
     }

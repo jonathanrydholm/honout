@@ -2,8 +2,7 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "outDir": "./dist",
-        "rootDir": "src",
-        "types": ["react-dom/canary", "react/canary"]
+        "rootDir": "src"
     },
     "include": ["src"]
 }

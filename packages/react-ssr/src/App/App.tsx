@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import AsyncTestComponent from './AsyncTestComponent';
-import ClientComponent from './ClientComponent';
 
 const App = () => {
     const ids: number[] = [1, 2, 3, 4, 5];
@@ -46,7 +45,6 @@ const App = () => {
                     </Suspense>
                 ))}
             </div>
-            <ClientComponent />
         </div>
     );
 };

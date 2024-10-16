@@ -1,11 +1,13 @@
+import { useData } from '../useData';
 import Counter from './Counter';
 
 const AsyncTestComponent = async (props) => {
-    const res = await fetch(
-        `https://jsonplaceholder.typicode.com/todos/${props.id}`
-    );
-    const data = await res.json();
-    await new Promise((resolve) => setTimeout(resolve, 500 * props.id));
+    const endpoint = `https://jsonplaceholder.typicode.com/todos/${props.id}`;
+
+    const data = await useData(endpoint, async () => {
+        await new Promise((r) => setTimeout(r, 500 * props.id));
+        return fetch(endpoint).then((res) => res.json());
+    });
 
     return (
         <div
@@ -21,7 +23,7 @@ const AsyncTestComponent = async (props) => {
             }}
         >
             <div>{data.title}</div>
-            <Counter />
+            <Counter initial={data.id} />
         </div>
     );
 };
