@@ -46,6 +46,7 @@ module.exports = (production, entry) => ({
             script: './dist/bundle.js',
             watch: path.resolve('./dist'),
             env: process.env,
+            nodeArgs: ['--experimental-vm-modules'],
         }),
     ],
 });
